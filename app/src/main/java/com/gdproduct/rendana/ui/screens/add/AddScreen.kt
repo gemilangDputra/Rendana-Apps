@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.wrapContentWidth
 
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -18,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 
 import androidx.compose.runtime.Composable
@@ -41,10 +41,8 @@ enum class AddMenu(val title: String) {
 
 @Composable
 fun AddScreen() {
-    var selectedMenu by remember {
-        mutableStateOf(AddMenu.TRANSACTION)
-    }
-
+    var selectedMenu by remember { mutableStateOf(AddMenu.TRANSACTION) }
+    
     Scaffold(
         containerColor = RendanaThemeColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -58,9 +56,11 @@ fun AddScreen() {
                 selectedMenu = selectedMenu,
                 onMenuSelected = { selectedMenu = it }
             )
-
+            
             AddContentContainer(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
                 when (selectedMenu) {
                     AddMenu.TRANSACTION -> TransactionPlaceholder()
@@ -76,10 +76,7 @@ fun AddHeader(
     selectedMenu: AddMenu,
     onMenuSelected: (AddMenu) -> Unit
 ) {
-    var expanded by remember {
-        mutableStateOf(false)
-    }
-
+    var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -89,10 +86,7 @@ fun AddHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(
-                    horizontal = 16.dp,
-                    vertical = 8.dp
-                ),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -101,18 +95,16 @@ fun AddHeader(
                 style = MaterialTheme.typography.titleLarge,
                 color = RendanaThemeColors.iconOnPrimary
             )
-
+            
             Box {
-                IconButton(
-                    onClick = { expanded = true }
-                ) {
+                IconButton(onClick = { expanded = true }) {
                     Icon(
                         imageVector = Menu,
                         contentDescription = "Buka menu",
                         tint = RendanaThemeColors.iconOnPrimary
                     )
                 }
-
+                
                 DropdownMenu(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
@@ -145,7 +137,7 @@ fun AddContentContainer(
 ) {
     Box(
         modifier = modifier
-            .fillMaxWidth()
+            .wrapContentWidth(Alignment.CenterHorizontally)
             .widthIn(max = 600.dp)
     ) {
         content()
