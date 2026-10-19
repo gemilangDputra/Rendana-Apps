@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style
+        name="Theme.Rendana"
+        parent="android:Theme.Material.Light.NoActionBar" />
+    <style
+        name="Theme.Rendana.Starting"
+        parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary_soft</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_rendana</item>
+        <item name="postSplashScreenTheme">@style/Theme.Rendana</item>
+    </style>
+</resources>
+        

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary -->
+    <color name="primary">#0F8A68</color>
+    <color name="primary_dark">#086B50</color>
+    <color name="primary_light">#A7F3D0</color>
+    <color name="primary_soft">#CDEBDD</color>
+    <color name="primary_contrast">#FFFFFF</color>
+
+    <!-- Income -->
+    <color name="income">#16A34A</color>
+    <color name="income_dark">#15803D</color>
+    <color name="income_light">#86EFAC</color>
+    <color name="income_soft">#E0F2E9</color>
+    <color name="income_background">#F0FDF4</color>
+    <color name="income_text">#166534</color>
+
+    <!-- Expense -->
+    <color name="expense">#DC5050</color>
+    <color name="expense_dark">#B91C1C</color>
+    <color name="expense_light">#FCA5A5</color>
+    <color name="expense_soft">#FCE7E7</color>
+    <color name="expense_background">#FEF2F2</color>
+    <color name="expense_text">#991B1B</color>
+
+    <!-- App Background -->
+    <color name="background">#F1F5F3</color>
+    <color name="background_secondary">#E8EFEB</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_soft">#F8FAF9</color>
+    <color name="surface_elevated">#FFFFFF</color>
+
+    <!-- Text -->
+    <color name="text">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_tertiary">#9CA3AF</color>
+    <color name="text_disabled">#D1D5DB</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_expense">#FFFFFF</color>
+
+    <!-- Border & Divider -->
+    <color name="border">#E5E7EB</color>
+    <color name="border_strong">#D1D5DB</color>
+    <color name="divider">#E5E7EB</color>
+    <color name="outline">#CBD5E1</color>
+
+    <!-- Financial Summary -->
+    <color name="balance_card">#065F46</color>
+    <color name="balance_text">#FFFFFF</color>
+    <color name="balance_text_secondary">#D1FAE5</color>
+    <color name="summary_income_card">#059669</color>
+    <color name="summary_expense_card">#DC5050</color>
+
+    <!-- Charts -->
+    <color name="chart_income">#10B981</color>
+    <color name="chart_expense">#EF4444</color>
+    <color name="chart_balance">#3B82F6</color>
+    <color name="chart_savings">#8B5CF6</color>
+    <color name="chart_grid">#E5E7EB</color>
+    <color name="chart_axis">#9CA3AF</color>
+    <color name="chart_tooltip_background">#1F2937</color>
+    <color name="chart_tooltip_text">#FFFFFF</color>
+
+    <!-- Reminder -->
+    <color name="reminder">#F59E0B</color>
+    <color name="reminder_dark">#B45309</color>
+    <color name="reminder_soft">#FEF3C7</color>
+    <color name="reminder_background">#FFFBEB</color>
+
+    <!-- Navigation -->
+    <color name="navigation_background">#FFFFFF</color>
+    <color name="navigation_selected">#0F8A68</color>
+    <color name="navigation_unselected">#9CA3AF</color>
+    <color name="navigation_indicator">#D1F0E4</color>
+
+    <!-- Status -->
+    <color name="success">#16A34A</color>
+    <color name="success_soft">#DCFCE7</color>
+    <color name="warning">#F59E0B</color>
+    <color name="warning_soft">#FEF3C7</color>
+    <color name="error">#DC2626</color>
+    <color name="error_soft">#FEE2E2</color>
+    <color name="info">#2563EB</color>
+    <color name="info_soft">#DBEAFE</color>
+
+    <!-- Icons -->
+    <color name="icon_primary">#374151</color>
+    <color name="icon_secondary">#6B7280</color>
+    <color name="icon_disabled">#9CA3AF</color>
+    <color name="icon_on_primary">#FFFFFF</color>
+</resources>
