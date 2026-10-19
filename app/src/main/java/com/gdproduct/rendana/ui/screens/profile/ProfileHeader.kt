@@ -1,5 +1,6 @@
 package com.gdproduct.rendana.ui.screens.profile
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,14 +16,17 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 
 import com.gdproduct.rendana.ui.icons.Notifications
 import com.gdproduct.rendana.ui.icons.Person
@@ -33,6 +37,21 @@ fun ProfileHeader(
     nickname: String,
     profilePicture: String
 ) {
+	val context = LocalContext.current
+    val imageRequest = remember(profilePicture, context) {
+        if (
+            profilePicture.isNotBlank() &&
+            profilePicture != "Defaults"
+        ) {
+            ImageRequest.Builder(context)
+                .data(Uri.parse(profilePicture))
+                .memoryCacheKey(profilePicture)
+                .build()
+        } else {
+            null
+        }
+    }
+	
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -56,12 +75,9 @@ fun ProfileHeader(
                     .padding(top = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (
-                    profilePicture.isNotBlank() &&
-                    profilePicture != "Defaults"
-                ) {
+                if (imageRequest != null) {
                     AsyncImage(
-                        model = profilePicture,
+                        model = imageRequest,
                         contentDescription = "Foto profil",
                         modifier = Modifier
                             .size(80.dp)
@@ -76,7 +92,7 @@ fun ProfileHeader(
                                 color = RendanaThemeColors.primaryDark,
                                 shape = CircleShape
                             ),
-                        contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = Person,

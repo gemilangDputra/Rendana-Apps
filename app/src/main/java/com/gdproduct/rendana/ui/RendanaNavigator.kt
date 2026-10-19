@@ -1,5 +1,9 @@
 package com.gdproduct.rendana.ui
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.tween
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -149,7 +153,41 @@ fun RendanaNavigator(navController: NavHostController) {
             startDestination = Screen.Home.route,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(innerPadding),
+	        
+            enterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(
+                        durationMillis = 200,
+                        delayMillis = 80
+                    ),
+                    initialOffsetX = { it }
+                )
+            },
+            
+            exitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(
+                        durationMillis = 200,
+                        delayMillis = 80
+                    ),
+                    targetOffsetX = { -it / 4 }
+                )
+            },
+	        
+            popEnterTransition = {
+                slideInHorizontally(
+                    animationSpec = tween(200),
+                    initialOffsetX = { -it / 4 }
+                )
+            },
+	        
+            popExitTransition = {
+                slideOutHorizontally(
+                    animationSpec = tween(200),
+                    targetOffsetX = { it }
+                )
+            }
         ) {
             composable(Screen.Home.route) { HomeScreen() }
             composable(Screen.History.route) { Placeholder("History") }
