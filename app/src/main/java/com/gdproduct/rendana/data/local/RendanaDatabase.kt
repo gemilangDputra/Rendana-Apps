@@ -1,4 +1,3 @@
-
 package com.gdproduct.rendana.data.local
 
 import android.content.Context
@@ -19,7 +18,6 @@ import com.gdproduct.rendana.data.local.entity.TransactionCategoryEntity
     version = 1,
     exportSchema = false
 )
-
 abstract class RendanaDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun transactionCategoryDao(): TransactionCategoryDao
@@ -27,41 +25,42 @@ abstract class RendanaDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: RendanaDatabase? = null
-        
         private val databaseCallback =
             object : RoomDatabase.Callback() {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     super.onCreate(db)
-				    
-                    val defaultCategories = listOf(
-                        "EXPENSE" to "Makanan & minuman",
-                        "EXPENSE" to "Belanja",
-                        "EXPENSE" to "Hiburan",
-                        "EXPENSE" to "Kesehatan",
-                        "EXPENSE" to "Transportasi",
-                        "EXPENSE" to "Pendidikan",
-                        "EXPENSE" to "Tagihan",
-                        "EXPENSE" to "Lainnya",
-                        "INCOME" to "Gaji",
-                        "INCOME" to "Bisnis",
-                        "INCOME" to "Bonus",
-                        "INCOME" to "Hadiah",
-                        "INCOME" to "Investasi",
-                        "INCOME" to "Lainnya"
-                    )
 					
-                    defaultCategories.forEach { (type, name) ->
+                    val defaultCategories = listOf(
+                        Triple("EXPENSE", "Makanan & minuman", "restaurant"),
+                        Triple("EXPENSE", "Belanja", "shoppingBag"),
+                        Triple("EXPENSE", "Hiburan", "redeem"),
+                        Triple("EXPENSE", "Kesehatan", "healthcross"),
+                        Triple("EXPENSE", "Transportasi", "transportation"),
+                        Triple("EXPENSE", "Pendidikan", "school"),
+                        Triple("EXPENSE", "Tagihan", "receipt"),
+                        Triple("EXPENSE", "Lainnya", "category"),
+						
+                        Triple("INCOME", "Gaji", "payments"),
+                        Triple("INCOME", "Bisnis", "store"),
+                        Triple("INCOME", "Bonus", "redeem"),
+                        Triple("INCOME", "Hadiah", "redeem"),
+                        Triple("INCOME", "Investasi", "trendingUp"),
+                        Triple("INCOME", "Lainnya", "category")
+                    )
+
+                    defaultCategories.forEach { (type, name, iconName) ->
                         db.execSQL(
                             """
-                            INSERT INTO transaction_categories (type, name)
-                            VALUES (?, ?)
+                            INSERT INTO transaction_categories
+                                (type, name, iconName)
+                            VALUES (?, ?, ?)
                             """.trimIndent(),
-                            arrayOf(type, name)
+                            arrayOf(type, name, iconName)
                         )
                     }
                 }
             }
-		
+			
         fun getDatabase(context: Context): RendanaDatabase {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room.databaseBuilder(

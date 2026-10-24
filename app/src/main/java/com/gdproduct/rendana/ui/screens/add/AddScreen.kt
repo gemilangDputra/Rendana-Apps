@@ -1,5 +1,7 @@
 package com.gdproduct.rendana.ui.screens.add
 
+import android.app.Application
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,10 +31,22 @@ import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.gdproduct.rendana.data.local.RendanaDatabase
+import com.gdproduct.rendana.data.repository.TransactionRepository
+import com.gdproduct.rendana.data.repository.TransactionCategoryRepository
 import com.gdproduct.rendana.ui.icons.Menu
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
+import com.gdproduct.rendana.ui.screens.add.category.CategoryScreen
+import com.gdproduct.rendana.ui.screens.add.category.CategoryViewModel
+import com.gdproduct.rendana.ui.screens.add.transaction.TransactionScreen
+import com.gdproduct.rendana.ui.screens.add.transaction.TransactionViewModel
 
 enum class AddMenu(val title: String) {
     TRANSACTION("Tambah Transaksi"),
@@ -41,8 +55,76 @@ enum class AddMenu(val title: String) {
 
 @Composable
 fun AddScreen() {
-    var selectedMenu by remember { mutableStateOf(AddMenu.TRANSACTION) }
-    
+    var selectedMenu by remember {
+        mutableStateOf(AddMenu.TRANSACTION)
+    }
+
+    val context = LocalContext.current
+    val database = remember {
+        RendanaDatabase.getDatabase(context)
+    }
+    val transactionRepository = remember {
+        TransactionRepository(database.transactionDao())
+    }
+    val categoryRepository = remember {
+        TransactionCategoryRepository(
+            database.transactionCategoryDao()
+        )
+    }
+	
+	val application = context.applicationContext as Application
+    val categoryViewModel: CategoryViewModel = viewModel(
+        factory = remember(application) {
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(
+                    modelClass: Class<T>
+                ): T {
+                    if (
+                        modelClass.isAssignableFrom(
+                            CategoryViewModel::class.java
+                        )
+                    ) {
+                        return CategoryViewModel(application) as T
+                    }
+                    
+                    throw IllegalArgumentException(
+                        "Unknown ViewModel: ${modelClass.name}"
+                    )
+                }
+            }
+        }
+    )
+
+    val transactionViewModel: TransactionViewModel = viewModel(
+        factory = remember(
+            transactionRepository,
+            categoryRepository
+        ) {
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(
+                    modelClass: Class<T>
+                ): T {
+                    if (
+                        modelClass.isAssignableFrom(
+                            TransactionViewModel::class.java
+                        )
+                    ) {
+                        return TransactionViewModel(
+                            transactionRepository,
+                            categoryRepository
+                        ) as T
+                    }
+
+                    throw IllegalArgumentException(
+                        "Unknown ViewModel: ${modelClass.name}"
+                    )
+                }
+            }
+        }
+    )
+
     Scaffold(
         containerColor = RendanaThemeColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -54,17 +136,31 @@ fun AddScreen() {
         ) {
             AddHeader(
                 selectedMenu = selectedMenu,
-                onMenuSelected = { selectedMenu = it }
+                onMenuSelected = { menu ->
+                    if (selectedMenu != menu) {
+                        transactionViewModel.resetForm()
+                        selectedMenu = menu
+                    }
+                }
             )
-            
+
             AddContentContainer(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
                 when (selectedMenu) {
-                    AddMenu.TRANSACTION -> TransactionPlaceholder()
-                    AddMenu.CATEGORY -> CategoryPlaceholder()
+                    AddMenu.TRANSACTION -> {
+                        TransactionScreen(
+                            viewModel = transactionViewModel
+                        )
+                    }
+
+                    AddMenu.CATEGORY -> {
+						CategoryScreen(
+						    viewModel = categoryViewModel
+						)
+                    }
                 }
             }
         }
@@ -76,7 +172,10 @@ fun AddHeader(
     selectedMenu: AddMenu,
     onMenuSelected: (AddMenu) -> Unit
 ) {
-    var expanded by remember { mutableStateOf(false) }
+    var expanded by remember {
+        mutableStateOf(false)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -86,7 +185,10 @@ fun AddHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 8.dp
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -95,19 +197,25 @@ fun AddHeader(
                 style = MaterialTheme.typography.titleLarge,
                 color = RendanaThemeColors.iconOnPrimary
             )
-            
+
             Box {
-                IconButton(onClick = { expanded = true }) {
+                IconButton(
+                    onClick = {
+                        expanded = true
+                    }
+                ) {
                     Icon(
                         imageVector = Menu,
                         contentDescription = "Buka menu",
                         tint = RendanaThemeColors.iconOnPrimary
                     )
                 }
-                
+
                 DropdownMenu(
                     expanded = expanded,
-                    onDismissRequest = { expanded = false },
+                    onDismissRequest = {
+                        expanded = false
+                    },
                     containerColor = RendanaThemeColors.surface
                 ) {
                     AddMenu.entries.forEach { menu ->
@@ -142,22 +250,4 @@ fun AddContentContainer(
     ) {
         content()
     }
-}
-
-@Composable
-fun TransactionPlaceholder() {
-    Placeholder("Form transaksi akan dibuat di sini")
-}
-
-@Composable
-fun CategoryPlaceholder() {
-    Placeholder("Form kategori akan dibuat di sini")
-}
-
-@Composable
-fun Placeholder(text: String) {
-    Text(
-        text = text,
-        color = RendanaThemeColors.textPrimary
-    )
 }

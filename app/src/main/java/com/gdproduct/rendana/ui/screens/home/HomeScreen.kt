@@ -13,7 +13,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.Wallet
@@ -30,8 +34,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+
 import com.gdproduct.rendana.domain.model.TransactionType
 import com.gdproduct.rendana.ui.components.TransactionCard
+import com.gdproduct.rendana.ui.icons.getIcon
 import com.gdproduct.rendana.ui.icons.CalendarClock
 import com.gdproduct.rendana.ui.icons.Person
 import com.gdproduct.rendana.ui.icons.Notifications
@@ -40,7 +47,11 @@ import com.gdproduct.rendana.ui.icons.Savings
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    homeViewModel: HomeViewModel = viewModel()
+) {
+	val transactions by homeViewModel.transactions.collectAsState()
+	
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -135,33 +146,43 @@ fun HomeScreen() {
             }
         }
 		
-        Column(
+        
+		Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-			BalanceSummaryCard(4968000L, 5000000L, 35000L)
-			
-            TransactionCard(
-                title = "Makan siang",
-                amount = 35000L,
-                type = TransactionType.EXPENSE,
-                category = "Makanan & Minuman",
-                date = "14 Okt 2026",
-                icon = Icons.Filled.Restaurant,
-                note = "Makan bersama teman"
+    ) {
+        Text(
+            text = "Transaksi terbaru",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.SemiBold,
+            color = RendanaThemeColors.textPrimary
+        )
+        
+        if (transactions.isEmpty()) {
+            Text(
+                text = "Belum ada transaksi. Yuk, catat transaksi pertamamu!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = RendanaThemeColors.textSecondary
             )
-
-            TransactionCard(
-                title = "Gaji bulanan",
-                amount = 5000000L,
-                type = TransactionType.INCOME,
-                category = "Gaji",
-                date = "14 Okt 2026",
-                icon = Icons.Filled.Wallet
-            )
+        } else {
+            transactions.forEach { transaction ->
+                TransactionCard(
+                        title = transaction.title,
+                        amount = transaction.amount,
+                        type = transaction.type,
+                        category = transaction.category,
+                        date = transaction.date,
+                        icon = getIcon(transaction.iconName),
+                        merchant = transaction.merchant,
+                        note = transaction.note,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
         }
     }
 }

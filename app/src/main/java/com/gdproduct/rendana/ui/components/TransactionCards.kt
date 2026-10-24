@@ -43,6 +43,7 @@ fun TransactionCard(
     date: String,
     icon: ImageVector,
     note: String? = null,
+	merchant: String? = null,
     modifier: Modifier = Modifier
     ) {
     val colors = RendanaThemeColors
@@ -78,6 +79,7 @@ fun TransactionCard(
         }
         .format(amount.coerceAtLeast(0L))
     
+	val displayMerchant = merchant?.takeIf { it.isNotBlank() }
 	val displayNote = note?.takeIf { it.isNotBlank() }
 	
     Card(
@@ -132,10 +134,20 @@ fun TransactionCard(
                     overflow = TextOverflow.Ellipsis
                 )
 				
+				if (displayMerchant != null) {
+                    Text(
+                        text = displayMerchant,
+                        color = colors.textSecondary,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+				
                 if (displayNote != null) {
                     Text(
                         text = displayNote,
-                        color = colors.textSecondary,
+                        color = colors.textTertiary,
                         style = MaterialTheme.typography.bodySmall,
                         fontSize = 12.sp,
                         maxLines = 1,

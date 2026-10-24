@@ -42,6 +42,7 @@ import com.gdproduct.rendana.ui.icons.Monitoring
 import com.gdproduct.rendana.ui.icons.Person
 import com.gdproduct.rendana.ui.screens.home.HomeScreen
 import com.gdproduct.rendana.ui.screens.add.AddScreen
+import com.gdproduct.rendana.ui.screens.history.HistoryScreen
 import com.gdproduct.rendana.ui.screens.profile.ProfileScreen
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
 
@@ -190,7 +191,7 @@ fun RendanaNavigator(navController: NavHostController) {
             }
         ) {
             composable(Screen.Home.route) { HomeScreen() }
-            composable(Screen.History.route) { Placeholder("History") }
+            composable(Screen.History.route) { HistoryScreen() }
 		    composable(Screen.Add.route) { AddScreen() }
 	        composable(Screen.Report.route) { Placeholder("Report") }
             composable(Screen.Profile.route) { ProfileScreen() }

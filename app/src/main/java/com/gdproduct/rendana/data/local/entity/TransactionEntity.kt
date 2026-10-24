@@ -21,6 +21,7 @@ data class TransactionEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 	
+	val merchantName: String? = null,
     val name: String,
     val amount: Long,
     val type: String,

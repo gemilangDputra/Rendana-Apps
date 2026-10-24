@@ -1,5 +1,6 @@
 package com.gdproduct.rendana.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
@@ -7,7 +8,10 @@ import androidx.room.PrimaryKey
 data class TransactionCategoryEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    
+
     val type: String,
-    val name: String
+    val name: String,
+
+    @ColumnInfo(defaultValue = "'category'")
+    val iconName: String = "category"
 )

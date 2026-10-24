@@ -10,10 +10,25 @@ import kotlinx.coroutines.flow.Flow
 class TransactionRepository(private val transactionDao: TransactionDao) {
     fun filterTransaction(
         filter: TransactionFilter = TransactionFilter(),
-        sort: TransactionSort = TransactionSort.DATE_NEWEST_FIRST
+        sort: List<TransactionSort> = listOf(
+            TransactionSort.DATE_NEWEST_FIRST
+        ),
+        limit: Int? = 50,
+        query: String = ""
     ): Flow<List<TransactionEntity>> {
         val conditions = mutableListOf<String>()
         val args = mutableListOf<Any>()
+		
+		query.takeIf { it.isNotBlank() }?.let {
+            conditions.add("(name LIKE ? OR merchantName LIKE ?)")
+            args.add("%$it%")
+            args.add("%$it%")
+        }
+		
+		filter.merchantName?.takeIf { it.isNotBlank() }?.let { merchant ->
+            conditions.add("merchantName LIKE ?")
+            args.add("%$merchant%")
+        }
 		
         filter.type?.let { type ->
             conditions.add("type = ?")
@@ -51,38 +66,49 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
             "WHERE ${conditions.joinToString(" AND ")}"
         }
 		
-        val orderClause = when (sort) {
+        val orderClauses = sort.map { sortType ->
+        when (sortType) {
             TransactionSort.TYPE_INCOME_FIRST ->
-                "CASE WHEN type = 'INCOME' THEN 0 ELSE 1 END ASC, date DESC"
+                "CASE WHEN type = 'INCOME' THEN 0 ELSE 1 END ASC"
             
             TransactionSort.TYPE_EXPENSE_FIRST ->
-                "CASE WHEN type = 'EXPENSE' THEN 0 ELSE 1 END ASC, date DESC"
+                "CASE WHEN type = 'EXPENSE' THEN 0 ELSE 1 END ASC"
             
             TransactionSort.AMOUNT_HIGH_TO_LOW ->
-                "amount DESC, date DESC"
+                "amount DESC"
             
             TransactionSort.AMOUNT_LOW_TO_HIGH ->
-                "amount ASC, date DESC"
+                "amount ASC"
             
             TransactionSort.DATE_NEWEST_FIRST ->
-                "date DESC"
+                "date DESC, id ASC"
             
             TransactionSort.DATE_OLDEST_FIRST ->
-                "date ASC"
+                "date ASC, id ASC"
+            }
+        }.toMutableList()
+        
+        orderClauses.add("id DESC")
+        val orderClause = orderClauses.joinToString(", ")
+        val safeLimit = limit?.coerceIn(1, 500)
+        
+        val sql = buildString {
+            append("SELECT * FROM transactions ")
+            append(whereClause)
+            append(" ORDER BY ")
+            append(orderClause)
+
+        if (safeLimit != null) {
+                append(" LIMIT ?")
+                args.add(safeLimit)
+            }
         }
-		
-        val sql =
-		"""
-            SELECT * FROM transactions
-            $whereClause
-            ORDER BY $orderClause
-        """.trimIndent()
         
         val query = SimpleSQLiteQuery(
             sql,
             args.toTypedArray()
         )
-		
+        
         return transactionDao.filterTransactions(query)
     }
 	
