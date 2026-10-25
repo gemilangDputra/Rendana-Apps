@@ -58,6 +58,7 @@ private val categoryIcons = listOf(
     "receipt",
     "receiptlong",
     "trendingup",
+	"trendingflat",
     "trendingdown",
     "redeem",
     "calendarclock",
@@ -71,7 +72,9 @@ private val categoryIcons = listOf(
     "add",
     "menu",
     "monitoring",
-    "notifications"
+    "notifications",
+	"search",
+	"filterlist"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

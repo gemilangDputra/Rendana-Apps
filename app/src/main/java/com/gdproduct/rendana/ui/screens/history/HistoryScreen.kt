@@ -15,10 +15,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
-
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -55,6 +51,8 @@ import com.gdproduct.rendana.data.repository.TransactionCategoryRepository
 import com.gdproduct.rendana.domain.model.TransactionFilter
 import com.gdproduct.rendana.domain.model.TransactionSort
 import com.gdproduct.rendana.ui.icons.Menu
+import com.gdproduct.rendana.ui.icons.Search
+import com.gdproduct.rendana.ui.icons.FilterList
 import com.gdproduct.rendana.ui.screens.history.transaction.TransactionScreen
 import com.gdproduct.rendana.ui.screens.history.transaction.TransactionHistoryViewModel
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
@@ -70,36 +68,36 @@ fun HistoryScreen() {
     var selectedHistory by remember {
         mutableStateOf(HistoryType.TRANSACTION)
     }
-
+    
     var searchQuery by remember {
         mutableStateOf("")
     }
-
+    
     var filterSheetVisible by remember {
         mutableStateOf(false)
     }
-
+    
     var transactionFilter by remember {
         mutableStateOf(TransactionFilter())
     }
-
+    
     var transactionSort by remember {
         mutableStateOf(
             listOf(TransactionSort.DATE_NEWEST_FIRST)
         )
     }
-
+    
     var transactionLimit by remember {
         mutableStateOf(50)
     }
-
+    
     val context = LocalContext.current
     val categoryRepository = remember(context) {
         TransactionCategoryRepository(
             RendanaDatabase.getDatabase(context).transactionCategoryDao()
         )
     }
-
+    
     val categories by categoryRepository
         .getAll()
         .collectAsState(initial = emptyList())
@@ -107,7 +105,7 @@ fun HistoryScreen() {
     val database = remember {
         RendanaDatabase.getDatabase(context)
     }
-
+    
     val transactionHistoryViewModel: TransactionHistoryViewModel =
         viewModel(
             factory = remember(database) {
@@ -127,7 +125,7 @@ fun HistoryScreen() {
                                 )
                             ) as T
                         }
-
+                        
                         throw IllegalArgumentException(
                             "Unknown ViewModel: ${modelClass.name}"
                         )
@@ -135,13 +133,13 @@ fun HistoryScreen() {
                 }
             }
         )
-
+    
     LaunchedEffect(searchQuery, selectedHistory) {
         if (selectedHistory == HistoryType.TRANSACTION) {
             transactionHistoryViewModel.updateSearchQuery(searchQuery)
         }
     }
-
+    
     Scaffold(
         containerColor = RendanaThemeColors.background,
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
@@ -169,7 +167,7 @@ fun HistoryScreen() {
                     }
                 }
             )
-
+            
             HistoryContentContainer(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -181,7 +179,7 @@ fun HistoryScreen() {
                             viewModel = transactionHistoryViewModel
                         )
                     }
-
+                    
                     HistoryType.REMINDER -> {
                         PlaceholderHistory(
                             title = "Riwayat pengingat",
@@ -189,7 +187,7 @@ fun HistoryScreen() {
                                 "Riwayat pengingat akan tersedia di sini."
                         )
                     }
-
+                    
                     HistoryType.SAVING_TARGET -> {
                         PlaceholderHistory(
                             title = "Riwayat target tabungan",
@@ -201,7 +199,7 @@ fun HistoryScreen() {
             }
         }
     }
-
+    
     if (
         filterSheetVisible &&
         selectedHistory == HistoryType.TRANSACTION
@@ -240,7 +238,7 @@ private fun HistoryHeader(
     var historyMenuExpanded by remember {
         mutableStateOf(false)
     }
-
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -266,7 +264,7 @@ private fun HistoryHeader(
                         tint = RendanaThemeColors.iconOnPrimary
                     )
                 }
-
+                
                 DropdownMenu(
                     expanded = historyMenuExpanded,
                     onDismissRequest = {
@@ -290,7 +288,7 @@ private fun HistoryHeader(
                     }
                 }
             }
-
+            
             Row(
                 modifier = Modifier
                     .weight(1f)
@@ -301,11 +299,11 @@ private fun HistoryHeader(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    imageVector = Search,
                     contentDescription = "Cari",
                     tint = RendanaThemeColors.textSecondary
                 )
-
+                
                 Box(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -341,22 +339,22 @@ private fun HistoryHeader(
                     )
                 }
             }
-
+            
             IconButton(
                 onClick = onFilterClick
             ) {
                 Icon(
-                    imageVector = Icons.Default.FilterList,
+                    imageVector = FilterList,
                     contentDescription = "Filter riwayat",
                     tint = RendanaThemeColors.iconOnPrimary
                 )
             }
         }
-
+        
         Text(
             text = selectedHistory.title,
             style = MaterialTheme.typography.titleLarge,
-            color = RendanaThemeColors.iconOnPrimary,
+            color = RendanaThemeColors.textOnPrimary,
             modifier = Modifier.padding(
                 start = 16.dp,
                 end = 16.dp,
@@ -381,10 +379,10 @@ private fun PlaceholderHistory(
     ) {
         Text(
             text = title,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleLarge,
             color = RendanaThemeColors.textPrimary
         )
-
+        
         Text(
             text = description,
             style = MaterialTheme.typography.bodyMedium,

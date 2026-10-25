@@ -55,7 +55,7 @@ fun TransactionScreen(
     val selectedCategory = state.categories.firstOrNull {
         it.id == state.selectedCategoryId
     }
-
+    
     Column(
         modifier = modifier
             .fillMaxWidth()

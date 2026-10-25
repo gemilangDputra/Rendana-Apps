@@ -24,6 +24,7 @@ fun getIcon(name: String): ImageVector {
         "store" -> Store
         "transportation" -> Transportation
         "trendingdown" -> TrendingDown
+		"trendingflat" -> TrendingFlat
         "trendingup" -> TrendingUp
         "wallet" -> Wallet
 		"healthcross" -> HealthCross
@@ -31,6 +32,8 @@ fun getIcon(name: String): ImageVector {
         "school" -> School
         "wifi" -> Wifi
         "electricbolt" -> ElectricBolt
+		"search" -> Search
+		"filterlist" -> FilterList
         else -> Category
     }
 }

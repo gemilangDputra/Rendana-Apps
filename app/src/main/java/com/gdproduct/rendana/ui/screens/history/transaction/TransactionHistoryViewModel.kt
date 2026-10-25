@@ -21,17 +21,14 @@ import kotlinx.coroutines.flow.stateIn
 class TransactionHistoryViewModel(
     private val repository: TransactionRepository
 ) : ViewModel() {
-
     private val filter = MutableStateFlow(TransactionFilter())
-
     private val sort = MutableStateFlow(
         listOf(TransactionSort.DATE_NEWEST_FIRST)
     )
-
+	
     private val searchQuery = MutableStateFlow("")
-
     private val limit = MutableStateFlow(50)
-
+	
     val transactions: StateFlow<List<TransactionEntity>> =
         combine(filter, sort, searchQuery, limit) {
                 currentFilter, currentSort, query, currentLimit ->
@@ -53,23 +50,23 @@ class TransactionHistoryViewModel(
             started = SharingStarted.WhileSubscribed(5_000),
             initialValue = emptyList()
         )
-
+    
     fun updateFilter(newFilter: TransactionFilter) {
         filter.value = newFilter
     }
-
+    
     fun updateSort(newSort: List<TransactionSort>) {
         sort.value = newSort
     }
-
+    
     fun updateSearchQuery(query: String) {
         searchQuery.value = query
     }
-
+    
     fun updateLimit(newLimit: Int) {
         limit.value = newLimit.coerceIn(1, 500)
     }
-
+    
     private data class HistoryQuery(
         val filter: TransactionFilter,
         val sort: List<TransactionSort>,
