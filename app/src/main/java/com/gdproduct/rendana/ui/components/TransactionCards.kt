@@ -30,9 +30,8 @@ import androidx.compose.ui.unit.sp
 
 import com.gdproduct.rendana.domain.model.TransactionType
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
-
-import java.text.NumberFormat
-import java.util.Locale
+import com.gdproduct.rendana.utils.AmountFormat
+import com.gdproduct.rendana.utils.formatAmount
 
 @Composable
 fun TransactionCard(
@@ -43,44 +42,38 @@ fun TransactionCard(
     date: String,
     icon: ImageVector,
     note: String? = null,
-	merchant: String? = null,
+    merchant: String? = null,
     modifier: Modifier = Modifier
-    ) {
+) {
     val colors = RendanaThemeColors
     val isIncome = type == TransactionType.INCOME
 	
-    val amountColor =
-	if (isIncome) {
+    val amountColor = if (isIncome) {
         colors.incomeText
     } else {
         colors.expenseText
     }
 	
-    val iconBoxColor =
-	if (isIncome) {
+    val iconBoxColor = if (isIncome) {
         colors.incomeDark
     } else {
         colors.expenseDark
     }
 	
-    val iconColor =
-	if (isIncome) {
+    val iconColor = if (isIncome) {
         colors.incomeLight
     } else {
         colors.expenseLight
     }
 	
     val amountPrefix = if (isIncome) "+" else "−"
-    val formattedAmount = NumberFormat
-        .getNumberInstance(Locale("id", "ID"))
-        .apply {
-            maximumFractionDigits = 0
-            minimumFractionDigits = 0
-        }
-        .format(amount.coerceAtLeast(0L))
-    
-	val displayMerchant = merchant?.takeIf { it.isNotBlank() }
-	val displayNote = note?.takeIf { it.isNotBlank() }
+    val formattedAmount = formatAmount(
+        amount.coerceAtLeast(0L),
+        AmountFormat.FULL
+    )
+	
+    val displayMerchant = merchant?.takeIf { it.isNotBlank() }
+    val displayNote = note?.takeIf { it.isNotBlank() }
 	
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -134,7 +127,7 @@ fun TransactionCard(
                     overflow = TextOverflow.Ellipsis
                 )
 				
-				if (displayMerchant != null) {
+                if (displayMerchant != null) {
                     Text(
                         text = displayMerchant,
                         color = colors.textSecondary,
@@ -158,7 +151,7 @@ fun TransactionCard(
 			
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "$amountPrefix" + "Rp$formattedAmount",
+                text = "$amountPrefix$formattedAmount",
                 color = amountColor,
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,

@@ -51,7 +51,6 @@ fun TransactionScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = RendanaThemeColors
-
     val selectedCategory = state.categories.firstOrNull {
         it.id == state.selectedCategoryId
     }

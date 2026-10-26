@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-
 import androidx.compose.foundation.shape.RoundedCornerShape
 
 import androidx.compose.material3.Icon
@@ -17,17 +16,16 @@ import androidx.compose.runtime.Composable
 
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
-import com.gdproduct.rendana.ui.icons.TrendingUp
-import com.gdproduct.rendana.ui.icons.TrendingFlat
 import com.gdproduct.rendana.ui.icons.TrendingDown
+import com.gdproduct.rendana.ui.icons.TrendingFlat
+import com.gdproduct.rendana.ui.icons.TrendingUp
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
+import com.gdproduct.rendana.utils.AmountFormat
+import com.gdproduct.rendana.utils.formatAmount
 
-import java.text.NumberFormat
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -40,25 +38,25 @@ fun ReportSummaryCard(
 ) {
     val change = netBalance.toDouble() -
         previousNetBalance.toDouble()
-
+	
     val percentage = if (previousNetBalance != 0L) {
         change / abs(previousNetBalance.toDouble()) * 100
     } else {
         0.0
     }
-
+	
     val trendColor = when {
         change > 0 -> RendanaThemeColors.income
         change < 0 -> RendanaThemeColors.expense
         else -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-
+	
     val trendIcon = when {
         change > 0 -> TrendingUp
         change < 0 -> TrendingDown
         else -> TrendingFlat
     }
-
+	
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,21 +76,23 @@ fun ReportSummaryCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
-
+			
             Text(
                 text = "Selisih Bersih",
                 color = RendanaThemeColors.textSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
-
+			
             Text(
-                text = formatRupiah(netBalance),
+                text = formatAmount(
+                    netBalance,
+                    AmountFormat.COMPACT
+                ),
                 color = RendanaThemeColors.incomeText,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-
-            // Indikator perubahan dibanding periode sebelumnya
+			
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -106,7 +106,7 @@ fun ReportSummaryCard(
                     },
                     tint = trendColor
                 )
-
+				
                 val comparisonText = when {
                     previousNetBalance == 0L && netBalance != 0L ->
                         "Belum ada pembanding"
@@ -114,7 +114,7 @@ fun ReportSummaryCard(
                     else ->
                         "${percentage.roundToInt().let { abs(it) }}% dibanding periode sebelumnya"
                 }
-
+				
                 Text(
                     text = comparisonText,
                     color = trendColor,
@@ -122,7 +122,7 @@ fun ReportSummaryCard(
                 )
             }
         }
-
+		
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -142,15 +142,18 @@ fun ReportSummaryCard(
                     color = RendanaThemeColors.incomeText,
                     style = MaterialTheme.typography.labelMedium
                 )
-
+				
                 Text(
-                    text = formatRupiah(totalIncome),
+                    text = formatAmount(
+                        totalIncome,
+                        AmountFormat.FULL
+                    ),
                     color = RendanaThemeColors.incomeText,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
-
+			
             Column(
                 modifier = Modifier
                     .weight(1f)
@@ -166,9 +169,12 @@ fun ReportSummaryCard(
                     color = RendanaThemeColors.expenseText,
                     style = MaterialTheme.typography.labelMedium
                 )
-
+				
                 Text(
-                    text = formatRupiah(totalExpense),
+                    text = formatAmount(
+                        totalExpense,
+                        AmountFormat.FULL
+                    ),
                     color = RendanaThemeColors.expenseText,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
@@ -176,10 +182,4 @@ fun ReportSummaryCard(
             }
         }
     }
-}
-
-private fun formatRupiah(amount: Long): String {
-    return NumberFormat.getCurrencyInstance(
-        Locale("id", "ID")
-    ).format(amount).replace(",00", "")
 }

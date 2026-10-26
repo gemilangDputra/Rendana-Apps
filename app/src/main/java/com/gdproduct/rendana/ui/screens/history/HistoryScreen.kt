@@ -55,6 +55,7 @@ import com.gdproduct.rendana.ui.icons.Search
 import com.gdproduct.rendana.ui.icons.FilterList
 import com.gdproduct.rendana.ui.screens.history.transaction.TransactionScreen
 import com.gdproduct.rendana.ui.screens.history.transaction.TransactionHistoryViewModel
+import com.gdproduct.rendana.ui.screens.history.transaction.TransactionFilterBottomSheet
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
 
 enum class HistoryType(val title: String) {

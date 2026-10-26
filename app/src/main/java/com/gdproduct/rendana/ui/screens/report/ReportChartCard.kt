@@ -26,6 +26,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import com.gdproduct.rendana.utils.AmountFormat
+import com.gdproduct.rendana.utils.formatAmount
+
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
@@ -44,7 +47,6 @@ import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarker
 import com.patrykandpatrick.vico.core.cartesian.marker.CartesianMarkerVisibilityListener
 import com.patrykandpatrick.vico.core.cartesian.marker.LineCartesianLayerMarkerTarget
 
-import java.text.NumberFormat
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -62,16 +64,16 @@ fun ReportChartCard(
     var selectedIndex by remember(data) {
         mutableIntStateOf(-1)
     }
-
+	
     val modelProducer = remember {
         CartesianChartModelProducer()
     }
-
+	
 	LaunchedEffect(data, modelProducer) {
         if (data.isEmpty()) {
             return@LaunchedEffect
         }
-        
+         
         modelProducer.runTransaction {
             lineSeries {
                 series(data.map { it.income.toDouble() })
@@ -79,36 +81,34 @@ fun ReportChartCard(
             }
         }
     }
-
-
+	
     val incomeLine = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(fill(chartIncome))
     )
-
+	
     val expenseLine = LineCartesianLayer.rememberLine(
         fill = LineCartesianLayer.LineFill.single(fill(chartExpense))
     )
-
+	
     val tooltipTextComponent = rememberTextComponent(
         color = chartTooltipText,
         textSize = 12.sp
     )
-
-    // DIPERBAIKI: Langsung panggil rememberDefaultCartesianMarker tanpa dibungkus remember {} tambahan
+	
     val marker = rememberDefaultCartesianMarker(
         label = tooltipTextComponent
     )
-
+	
     val axisLabelStart = rememberTextComponent(
         color = chartAxis,
         textSize = 10.sp
     )
-
+	
     val axisLabelBottom = rememberTextComponent(
         color = chartAxis,
         textSize = 10.sp
     )
-
+	
     val chart = rememberCartesianChart(
         rememberLineCartesianLayer(
             lineProvider = LineCartesianLayer.LineProvider.series(
@@ -132,7 +132,7 @@ fun ReportChartCard(
                         selectedIndex = it
                     }
                 }
-
+				
                 override fun onUpdated(
                     marker: CartesianMarker,
                     targets: List<CartesianMarker.Target>
@@ -141,7 +141,7 @@ fun ReportChartCard(
                         selectedIndex = it
                     }
                 }
-
+				
                 override fun onHidden(marker: CartesianMarker) {
                     selectedIndex = -1
                 }
@@ -149,14 +149,13 @@ fun ReportChartCard(
         },
         marker = marker
     )
-
-	val selectedData = data.getOrNull(selectedIndex)
 	
+	val selectedData = data.getOrNull(selectedIndex)
     val cumulativeTotals = remember(data) {
         val totals = ArrayList<Pair<Double, Double>>(data.size)
         var incomeTotal = 0.0
         var expenseTotal = 0.0
-
+		
         data.forEach { item ->
             incomeTotal += item.income
             expenseTotal += item.expense
@@ -165,23 +164,19 @@ fun ReportChartCard(
 
         totals
     }
-    
+	
     val selectedTotals = cumulativeTotals.getOrNull(selectedIndex)
-    
     val totalIncome = selectedTotals?.first
         ?: cumulativeTotals.lastOrNull()?.first
         ?: 0.0
-
+	
     val totalExpense = selectedTotals?.second
         ?: cumulativeTotals.lastOrNull()?.second
         ?: 0.0
-
-    val rupiahFormat = remember {
-        NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply {
-            maximumFractionDigits = 0
-        }
+	
+    val rupiahFormat = { amount: Double ->
+        formatAmount(amount.toLong(), AmountFormat.FULL)
     }
-
     val dateFormat = remember {
         DateTimeFormatter.ofPattern("d MMM", Locale("id", "ID"))
     }
@@ -210,12 +205,12 @@ fun ReportChartCard(
                         style = MaterialTheme.typography.labelMedium
                     )
 					Text(
-                        text = rupiahFormat.format(totalIncome),
+                        text = rupiahFormat(totalIncome),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-
+				
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Pengeluaran",
@@ -223,13 +218,13 @@ fun ReportChartCard(
                         style = MaterialTheme.typography.labelMedium
                     )
                     Text(
-                        text = rupiahFormat.format(totalExpense),
+                        text = rupiahFormat(totalExpense),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
             }
-
+			
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
@@ -242,7 +237,7 @@ fun ReportChartCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = chartAxis
                 )
-
+				
                 if (selectedIndex in data.indices) {
                     Text(
                         text = data[selectedIndex].date.format(dateFormat),
@@ -251,7 +246,7 @@ fun ReportChartCard(
                     )
                 }
             }
-
+			
             if (data.isNotEmpty()) {
                 CartesianChartHost(
                     chart = chart,
@@ -276,7 +271,6 @@ private fun updateSelectedIndex(
     onSelected: (Int) -> Unit
 ) {
     if (dataSize == 0) return
-
     val x = targets
         .filterIsInstance<LineCartesianLayerMarkerTarget>()
         .firstOrNull()
@@ -285,6 +279,6 @@ private fun updateSelectedIndex(
         ?.entry
         ?.x
         ?: return
-
+	
     onSelected(x.toInt().coerceIn(0, dataSize - 1))
 }

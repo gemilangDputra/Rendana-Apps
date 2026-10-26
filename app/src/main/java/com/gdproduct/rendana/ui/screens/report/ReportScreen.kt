@@ -1,7 +1,5 @@
 package com.gdproduct.rendana.ui.screens.report
 
-import androidx.lifecycle.viewmodel.compose.viewModel
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,15 +12,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.ChevronRight
 
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 
 import androidx.compose.ui.Alignment
@@ -30,13 +27,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 import com.gdproduct.rendana.ui.icons.Monitoring
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
+import com.gdproduct.rendana.utils.AmountFormat
+import com.gdproduct.rendana.utils.formatAmount
 
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.time.temporal.TemporalAdjusters
+import java.time.DayOfWeek
 
 @Composable
 fun ReportScreen(
@@ -45,31 +46,39 @@ fun ReportScreen(
     val period by viewModel.period.collectAsStateWithLifecycle()
     val date by viewModel.date.collectAsStateWithLifecycle()
     val isCurrentPeriod by viewModel.isCurrentPeriod.collectAsStateWithLifecycle()
-
     val totalIncome by viewModel.totalIncome.collectAsStateWithLifecycle()
     val totalExpense by viewModel.totalExpense.collectAsStateWithLifecycle()
     val netBalance by viewModel.netBalance.collectAsStateWithLifecycle()
     val previousNetBalance by viewModel.previousNetBalance.collectAsStateWithLifecycle()
-	val chartData by viewModel.chartData.collectAsStateWithLifecycle()
-
+    val chartData by viewModel.chartData.collectAsStateWithLifecycle()
+    val expenseCategories by viewModel.expenseCategories.collectAsStateWithLifecycle()
+    val incomeCategories by viewModel.incomeCategories.collectAsStateWithLifecycle()
+    val largestExpenseTransactions by
+        viewModel.largestExpenseTransactions.collectAsStateWithLifecycle()
+    val largestIncomeTransactions by
+        viewModel.largestIncomeTransactions.collectAsStateWithLifecycle()
+    
     val periodLabel = when (period) {
         ReportPeriod.WEEK -> {
             val start = date.with(
-                java.time.temporal.TemporalAdjusters.previousOrSame(
-                    java.time.DayOfWeek.MONDAY
-                )
+                TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)
             )
             val end = start.plusDays(6)
+			
             "${start.format(DateTimeFormatter.ofPattern("d MMM", Locale("id", "ID")))} - " +
-                end.format(DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID")))
+                end.format(
+                    DateTimeFormatter.ofPattern("d MMM yyyy", Locale("id", "ID"))
+                )
         }
-
+		
         ReportPeriod.MONTH ->
-            date.format(DateTimeFormatter.ofPattern("MMMM yyyy", Locale("id", "ID")))
-
+            date.format(
+                DateTimeFormatter.ofPattern("MMMM yyyy", Locale("id", "ID"))
+            )
+        
         ReportPeriod.YEAR -> date.year.toString()
     }
-
+    
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,7 +86,6 @@ fun ReportScreen(
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Header
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -89,22 +97,21 @@ fun ReportScreen(
                     style = MaterialTheme.typography.titleLarge,
                     color = RendanaThemeColors.textPrimary
                 )
-
+				
                 Text(
                     text = "Ringkasan Keuanganmu",
                     style = MaterialTheme.typography.bodyMedium,
                     color = RendanaThemeColors.textSecondary
                 )
             }
-
+			
             Icon(
                 imageVector = Monitoring,
                 contentDescription = "Laporan",
                 tint = RendanaThemeColors.primary
             )
         }
-
-        // Pemilih periode
+		
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -118,7 +125,7 @@ fun ReportScreen(
                     contentDescription = "Periode sebelumnya"
                 )
             }
-
+			
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -126,7 +133,7 @@ fun ReportScreen(
                     text = periodLabel,
                     style = MaterialTheme.typography.titleMedium
                 )
-
+				
                 if (!isCurrentPeriod) {
                     TextButton(
                         onClick = { viewModel.goToCurrentPeriod() }
@@ -135,7 +142,7 @@ fun ReportScreen(
                     }
                 }
             }
-
+			
             IconButton(
                 onClick = { viewModel.nextPeriod() },
                 enabled = !isCurrentPeriod
@@ -146,7 +153,7 @@ fun ReportScreen(
                 )
             }
         }
-
+		
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -168,8 +175,7 @@ fun ReportScreen(
                 )
             }
         }
-
-        // Ringkasan keuangan
+		
         ReportSummaryCard(
             netBalance = netBalance,
             totalIncome = totalIncome,
@@ -177,7 +183,7 @@ fun ReportScreen(
             previousNetBalance = previousNetBalance
         )
 		
-		ReportChartCard(
+        ReportChartCard(
             data = chartData,
             chartIncome = RendanaThemeColors.chartIncome,
             chartExpense = RendanaThemeColors.chartExpense,
@@ -185,6 +191,26 @@ fun ReportScreen(
             chartAxis = RendanaThemeColors.chartAxis,
             chartTooltipBackground = RendanaThemeColors.chartTooltipBackground,
             chartTooltipText = RendanaThemeColors.chartTooltipText
+        )
+		
+        CategoryAnalysisCard(
+            title = "Analisis Pengeluaran",
+            totalAmount = totalExpense,
+            categories = expenseCategories,
+            transactions = largestExpenseTransactions,
+            formatAmount = { amount ->
+                formatAmount(amount, AmountFormat.COMPACT)
+            }
+        )
+        
+        CategoryAnalysisCard(
+            title = "Analisis Pemasukan",
+            totalAmount = totalIncome,
+            categories = incomeCategories,
+            transactions = largestIncomeTransactions,
+            formatAmount = { amount ->
+                formatAmount(amount, AmountFormat.COMPACT)
+            }
         )
     }
 }

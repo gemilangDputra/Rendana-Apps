@@ -1,4 +1,4 @@
-package com.gdproduct.rendana.ui.screens.history
+package com.gdproduct.rendana.ui.screens.history.transaction
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

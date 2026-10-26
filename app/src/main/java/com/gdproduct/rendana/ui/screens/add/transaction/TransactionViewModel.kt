@@ -8,12 +8,12 @@ import com.gdproduct.rendana.data.local.entity.TransactionCategoryEntity
 import com.gdproduct.rendana.data.local.entity.TransactionEntity
 import com.gdproduct.rendana.data.repository.TransactionCategoryRepository
 import com.gdproduct.rendana.data.repository.TransactionRepository
+import com.gdproduct.rendana.utils.AmountFormat
+import com.gdproduct.rendana.utils.formatAmount
 
-import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -90,18 +90,21 @@ class TransactionViewModel(
     fun onAmountChange(value: String) {
         val digits = value.filter(Char::isDigit)
         val parsed = digits.toLongOrNull()
-
+		
         if (digits.isNotEmpty() && parsed == null) return
-
+	    
         val formatted = if (digits.isEmpty()) {
             ""
         } else {
-            NumberFormat.getIntegerInstance(Locale("id", "ID"))
-                .format(parsed)
+            formatAmount(parsed!!, AmountFormat.FULL)
+                .removePrefix("Rp")
         }
-
         _uiState.update {
-            it.copy(amount = formatted, error = null, isSaved = false)
+            it.copy(
+                amount = formatted,
+                error = null,
+                isSaved = false
+            )
         }
     }
 

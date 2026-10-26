@@ -44,7 +44,7 @@ import com.gdproduct.rendana.domain.model.TransactionType
 import com.gdproduct.rendana.ui.icons.getIcon
 import com.gdproduct.rendana.ui.theme.RendanaThemeColors
 
-private val categoryIcons = listOf(
+val categoryIcons = listOf(
     "category",
     "restaurant",
     "shoppingbag",
@@ -85,15 +85,15 @@ fun CategoryScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val colors = RendanaThemeColors
-
+	
     var iconSheetVisible by remember {
         mutableStateOf(false)
     }
-
+	
     LaunchedEffect(state.saved) {
         if (state.saved) onSaved()
     }
-
+	
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -186,8 +186,7 @@ fun CategoryScreen(
                 }
             }
         }
-        
-        // Pilih ikon
+		
         Column(
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
@@ -196,7 +195,7 @@ fun CategoryScreen(
                 style = MaterialTheme.typography.titleSmall,
                 color = colors.textPrimary
             )
-
+			
             Card(
                 onClick = {
                     iconSheetVisible = true
@@ -233,8 +232,7 @@ fun CategoryScreen(
                 }
             }
         }
-
-        // Bottom Sheet pemilihan ikon
+		
         if (iconSheetVisible) {
             ModalBottomSheet(
                 onDismissRequest = {
@@ -254,7 +252,7 @@ fun CategoryScreen(
                         style = MaterialTheme.typography.titleMedium,
                         color = colors.textPrimary
                     )
-
+					
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(5),
                         modifier = Modifier
@@ -285,8 +283,7 @@ fun CategoryScreen(
                 }
             }
         }
-
-        // Pesan validasi
+		
         state.errorMessage?.let { message ->
             Text(
                 text = message,
@@ -294,7 +291,7 @@ fun CategoryScreen(
                 style = MaterialTheme.typography.bodySmall
             )
         }
-
+		
         if (state.saved) {
             Text(
                 text = "Kategori berhasil disimpan.",
@@ -302,9 +299,8 @@ fun CategoryScreen(
                 style = MaterialTheme.typography.bodySmall
             )
         }
-
+		
         Spacer(Modifier.height(4.dp))
-
         Button(
             onClick = viewModel::saveCategory,
             enabled = !state.isSaving,
