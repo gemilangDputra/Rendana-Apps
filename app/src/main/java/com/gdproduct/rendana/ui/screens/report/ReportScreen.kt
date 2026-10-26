@@ -50,6 +50,7 @@ fun ReportScreen(
     val totalExpense by viewModel.totalExpense.collectAsStateWithLifecycle()
     val netBalance by viewModel.netBalance.collectAsStateWithLifecycle()
     val previousNetBalance by viewModel.previousNetBalance.collectAsStateWithLifecycle()
+	val chartData by viewModel.chartData.collectAsStateWithLifecycle()
 
     val periodLabel = when (period) {
         ReportPeriod.WEEK -> {
@@ -174,6 +175,16 @@ fun ReportScreen(
             totalIncome = totalIncome,
             totalExpense = totalExpense,
             previousNetBalance = previousNetBalance
+        )
+		
+		ReportChartCard(
+            data = chartData,
+            chartIncome = RendanaThemeColors.chartIncome,
+            chartExpense = RendanaThemeColors.chartExpense,
+            chartGrid = RendanaThemeColors.chartGrid,
+            chartAxis = RendanaThemeColors.chartAxis,
+            chartTooltipBackground = RendanaThemeColors.chartTooltipBackground,
+            chartTooltipText = RendanaThemeColors.chartTooltipText
         )
     }
 }

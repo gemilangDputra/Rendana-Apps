@@ -63,7 +63,7 @@ fun ReportSummaryCard(
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = RendanaThemeColors.balanceCard,
+                color = RendanaThemeColors.surface,
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(16.dp),
@@ -74,20 +74,20 @@ fun ReportSummaryCard(
         ) {
             Text(
                 text = "Ikhtisar keuangan",
-                color = RendanaThemeColors.balanceText,
+                color = RendanaThemeColors.textPrimary,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold
             )
 
             Text(
                 text = "Selisih Bersih",
-                color = RendanaThemeColors.balanceText,
+                color = RendanaThemeColors.textSecondary,
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
                 text = formatRupiah(netBalance),
-                color = RendanaThemeColors.balanceText,
+                color = RendanaThemeColors.incomeText,
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )

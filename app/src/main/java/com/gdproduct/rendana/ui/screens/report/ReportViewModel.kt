@@ -1,11 +1,9 @@
 package com.gdproduct.rendana.ui.screens.report
 
 import android.app.Application
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.gdproduct.rendana.data.local.RendanaDatabase
-import com.gdproduct.rendana.data.local.entity.TransactionEntity
 import com.gdproduct.rendana.data.repository.TransactionRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,6 +15,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.YearMonth
+import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -40,15 +40,7 @@ class ReportViewModel(
 
     val date = _date.asStateFlow()
 
-    fun setPeriod(period: ReportPeriod) {
-        _period.value = period
-    }
-
-    fun setDate(date: LocalDate) {
-        _date.value = date
-    }
-
-    // Semua transaksi pada periode terpilih
+    // Semua transaksi pada periode terpilih (dideklarasikan sekali saja)
     private fun getTransaction() =
         combine(_period, _date) { period, date ->
             getDateRange(period, date)
@@ -72,12 +64,84 @@ class ReportViewModel(
         initialValue = emptyList()
     )
 
+    // Data untuk Chart (Grafik)
+    val chartData = combine(transactions, _period, _date) {
+            transactionList, selectedPeriod, selectedDate ->
+
+        val (startDate, endDate) = getDateRange(
+            selectedPeriod,
+            selectedDate
+        )
+
+        val transactionsByDate = transactionList.groupBy {
+            LocalDate.parse(it.date)
+        }
+
+        when (selectedPeriod) {
+            ReportPeriod.WEEK, ReportPeriod.MONTH -> {
+                val numberOfDays = ChronoUnit.DAYS
+                    .between(startDate, endDate)
+                    .toInt()
+
+                (0..numberOfDays).map { offset ->
+                    val currentDate = startDate.plusDays(offset.toLong())
+                    val dailyTransactions =
+                        transactionsByDate[currentDate].orEmpty()
+
+                    ReportChartData(
+                        date = currentDate,
+                        income = dailyTransactions
+                            .filter {
+                                it.type.equals("INCOME", ignoreCase = true)
+                            }
+                            .sumOf { it.amount.toLong() },
+                        expense = dailyTransactions
+                            .filter {
+                                it.type.equals("EXPENSE", ignoreCase = true)
+                            }
+                            .sumOf { it.amount.toLong() }
+                    )
+                }
+            }
+
+            ReportPeriod.YEAR -> {
+                val transactionsByMonth = transactionList.groupBy {
+                    YearMonth.from(LocalDate.parse(it.date))
+                }
+
+                (1..12).map { month ->
+                    val yearMonth = YearMonth.of(selectedDate.year, month)
+                    val monthlyTransactions =
+                        transactionsByMonth[yearMonth].orEmpty()
+
+                    ReportChartData(
+                        date = yearMonth.atDay(1),
+                        income = monthlyTransactions
+                            .filter {
+                                it.type.equals("INCOME", ignoreCase = true)
+                            }
+                            .sumOf { it.amount.toLong() },
+                        expense = monthlyTransactions
+                            .filter {
+                                it.type.equals("EXPENSE", ignoreCase = true)
+                            }
+                            .sumOf { it.amount.toLong() }
+                    )
+                }
+            }
+        }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(5_000),
+        emptyList()
+    )
+
     // Total pemasukan
     val totalIncome = transactions.map { list ->
         list.filter {
             it.type.equals("INCOME", ignoreCase = true)
         }.sumOf {
-            it.amount
+            it.amount.toLong()
         }
     }.stateIn(
         viewModelScope,
@@ -90,15 +154,15 @@ class ReportViewModel(
         list.filter {
             it.type.equals("EXPENSE", ignoreCase = true)
         }.sumOf {
-            it.amount
+            it.amount.toLong()
         }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5_000),
         0L
     )
-	
-	val isCurrentPeriod = combine(
+
+    val isCurrentPeriod = combine(
         _period,
         _date
     ) { period, date ->
@@ -110,7 +174,7 @@ class ReportViewModel(
         SharingStarted.WhileSubscribed(5_000),
         true
     )
-    
+
     // Pemasukan - pengeluaran
     val netBalance = combine(
         totalIncome,
@@ -122,17 +186,17 @@ class ReportViewModel(
         SharingStarted.WhileSubscribed(5_000),
         0L
     )
-	
-	val previousNetBalance = getPreviousTransactions()
+
+    val previousNetBalance = getPreviousTransactions()
         .map { list ->
             val income = list
                 .filter { it.type.equals("INCOME", ignoreCase = true) }
-                .sumOf { it.amount }
-            
+                .sumOf { it.amount.toLong() }
+
             val expense = list
                 .filter { it.type.equals("EXPENSE", ignoreCase = true) }
-                .sumOf { it.amount }
-            
+                .sumOf { it.amount.toLong() }
+
             income - expense
         }
         .stateIn(
@@ -140,15 +204,23 @@ class ReportViewModel(
             SharingStarted.WhileSubscribed(5_000),
             0L
         )
-	
-	fun previousPeriod() {
+
+    fun setPeriod(period: ReportPeriod) {
+        _period.value = period
+    }
+
+    fun setDate(date: LocalDate) {
+        _date.value = date
+    }
+
+    fun previousPeriod() {
         _date.value = when (_period.value) {
             ReportPeriod.WEEK -> _date.value.minusWeeks(1)
             ReportPeriod.MONTH -> _date.value.minusMonths(1)
             ReportPeriod.YEAR -> _date.value.minusYears(1)
         }
     }
-    
+
     fun nextPeriod() {
         val currentDate = LocalDate.now()
         val nextDate = when (_period.value) {
@@ -156,7 +228,7 @@ class ReportViewModel(
             ReportPeriod.MONTH -> _date.value.plusMonths(1)
             ReportPeriod.YEAR -> _date.value.plusYears(1)
         }
-        
+
         val (_, nextEndDate) = getDateRange(_period.value, nextDate)
         if (!nextEndDate.isAfter(currentDate)) {
             _date.value = nextDate
@@ -164,7 +236,7 @@ class ReportViewModel(
             _date.value = nextDate
         }
     }
-        
+
     fun goToCurrentPeriod() {
         _date.value = LocalDate.now()
     }
@@ -194,26 +266,26 @@ class ReportViewModel(
             }
         }
     }
-	
-	private fun getPreviousTransactions() =
-    combine(_period, _date) { period, date ->
-        val previousDate = when (period) {
-            ReportPeriod.WEEK -> date.minusWeeks(1)
-            ReportPeriod.MONTH -> date.minusMonths(1)
-            ReportPeriod.YEAR -> date.minusYears(1)
-        }
 
-        getDateRange(period, previousDate)
-    }.flatMapLatest { (startDate, endDate) ->
-        repository.filterTransaction(
-            filter = com.gdproduct.rendana.domain.model.TransactionFilter(
-                startDate = startDate.toString(),
-                endDate = endDate.toString()
-            ),
-            sort = listOf(
-                com.gdproduct.rendana.domain.model.TransactionSort.DATE_NEWEST_FIRST
-            ),
-            limit = null
-        )
-    }
+    private fun getPreviousTransactions() =
+        combine(_period, _date) { period, date ->
+            val previousDate = when (period) {
+                ReportPeriod.WEEK -> date.minusWeeks(1)
+                ReportPeriod.MONTH -> date.minusMonths(1)
+                ReportPeriod.YEAR -> date.minusYears(1)
+            }
+
+            getDateRange(period, previousDate)
+        }.flatMapLatest { (startDate, endDate) ->
+            repository.filterTransaction(
+                filter = com.gdproduct.rendana.domain.model.TransactionFilter(
+                    startDate = startDate.toString(),
+                    endDate = endDate.toString()
+                ),
+                sort = listOf(
+                    com.gdproduct.rendana.domain.model.TransactionSort.DATE_NEWEST_FIRST
+                ),
+                limit = null
+            )
+        }
 }
