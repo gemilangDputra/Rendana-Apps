@@ -15,7 +15,7 @@ import androidx.core.view.WindowCompat
 import androidx.navigation.compose.rememberNavController
 
 import com.gdproduct.rendana.ui.RendanaNavigator
-import com.gdproduct.rendana.ui.screens.settings.SettingsViewModel
+import com.gdproduct.rendana.ui.screens.profile.settings.SettingsViewModel
 import com.gdproduct.rendana.ui.theme.RendanaTheme
 
 class MainActivity : ComponentActivity() {

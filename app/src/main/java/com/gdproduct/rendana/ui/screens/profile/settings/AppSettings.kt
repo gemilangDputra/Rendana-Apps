@@ -1,4 +1,4 @@
-package com.gdproduct.rendana.ui.screens.settings
+package com.gdproduct.rendana.ui.screens.profile.settings
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

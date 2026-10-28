@@ -1,4 +1,4 @@
-package com.gdproduct.rendana.ui.screens.settings
+package com.gdproduct.rendana.ui.screens.profile.settings
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

@@ -93,7 +93,9 @@ dependencies {
     implementation("com.patrykandpatrick.vico:core:$vicoVersion")
     implementation("com.patrykandpatrick.vico:compose:$vicoVersion")
     implementation("com.patrykandpatrick.vico:compose-m3:$vicoVersion")
-    
+	
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     // Testing Dependencies
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")

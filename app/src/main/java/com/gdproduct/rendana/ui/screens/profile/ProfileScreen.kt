@@ -15,10 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 
-import com.gdproduct.rendana.ui.screens.profile.settings.ProfileSettings
-import com.gdproduct.rendana.ui.screens.profile.settings.ProfileSettingsViewModel
-import com.gdproduct.rendana.ui.screens.settings.AppSettings
-import com.gdproduct.rendana.ui.screens.settings.SettingsViewModel
+import com.gdproduct.rendana.ui.screens.profile.profilesettings.ProfileSettings
+import com.gdproduct.rendana.ui.screens.profile.profilesettings.ProfileSettingsViewModel
+import com.gdproduct.rendana.ui.screens.profile.settings.AppSettings
+import com.gdproduct.rendana.ui.screens.profile.settings.SettingsViewModel
+import com.gdproduct.rendana.ui.screens.profile.ai.AiSettings
 
 @Composable
 fun ProfileScreen(
@@ -28,7 +29,8 @@ fun ProfileScreen(
     var showAppSettings by remember { mutableStateOf(false) }
     var showProfileSettings by remember { mutableStateOf(false) }
     var showAboutApp by remember { mutableStateOf(false) }
-
+    var showAiSettings by remember { mutableStateOf(false) }
+		
     val themeMode by settingsViewModel.themeMode.collectAsState()
     val nickname by profileSettingsViewModel.nickname.collectAsState()
     val profilePicture by profileSettingsViewModel.profilePicture.collectAsState()
@@ -36,13 +38,11 @@ fun ProfileScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        // Header berada paling atas dan tidak terkena padding konten.
         ProfileHeader(
             nickname = nickname,
             profilePicture = profilePicture
         )
-
-        // Padding hanya berlaku untuk bagian menu.
+		
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -58,15 +58,10 @@ fun ProfileScreen(
                     text = "Pengaturan Profil",
                     onClick = { showProfileSettings = true }
                 )
-
-                ProfileMenuButton(
-                    text = "Pengaturan Keamanan",
-                    onClick = {}
-                )
             }
-
+			
             HorizontalDivider()
-
+			
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -75,6 +70,11 @@ fun ProfileScreen(
                 ProfileMenuButton(
                     text = "Pengaturan Aplikasi",
                     onClick = { showAppSettings = true }
+                )
+				
+				ProfileMenuButton(
+                    text = "Pengaturan Kecerdasan Buatan",
+                    onClick = { showAiSettings = true }
                 )
             }
 
@@ -126,6 +126,12 @@ fun ProfileScreen(
     if (showAboutApp) {
         AboutAppBottomSheet(
             onDismiss = { showAboutApp = false }
+        )
+    }
+	
+	if (showAiSettings) {
+        AiSettings(
+            onDismiss = { showAiSettings = false }
         )
     }
 }

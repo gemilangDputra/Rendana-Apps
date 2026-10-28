@@ -74,7 +74,8 @@ val categoryIcons = listOf(
     "monitoring",
     "notifications",
 	"search",
-	"filterlist"
+	"filterlist",
+	"documentscanner"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

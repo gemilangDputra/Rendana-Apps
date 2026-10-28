@@ -86,7 +86,7 @@ fun ReportSummaryCard(
             Text(
                 text = formatAmount(
                     netBalance,
-                    AmountFormat.COMPACT
+                    AmountFormat.FULL
                 ),
                 color = RendanaThemeColors.incomeText,
                 style = MaterialTheme.typography.headlineMedium,

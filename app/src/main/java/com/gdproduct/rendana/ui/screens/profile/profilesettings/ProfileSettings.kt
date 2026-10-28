@@ -1,4 +1,4 @@
-package com.gdproduct.rendana.ui.screens.profile.settings
+package com.gdproduct.rendana.ui.screens.profile.profilesettings
 
 import android.content.Intent
 import android.net.Uri
